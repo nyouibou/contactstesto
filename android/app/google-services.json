@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "393112832417",
+    "firebase_url": "https://pulseup-d5a33-default-rtdb.firebaseio.com",
+    "project_id": "pulseup-d5a33",
+    "storage_bucket": "pulseup-d5a33.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:393112832417:android:7f3c859981024aa57fa3e0",
+        "android_client_info": {
+          "package_name": "com.contactio.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdz5JB6Ro269-DN-EYvJW0gGbkZBOHQqI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:393112832417:android:132cee33d776d3fd7fa3e0",
+        "android_client_info": {
+          "package_name": "com.dialerco.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdz5JB6Ro269-DN-EYvJW0gGbkZBOHQqI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:393112832417:android:15535fcc6a058d557fa3e0",
+        "android_client_info": {
+          "package_name": "com.pulseup.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdz5JB6Ro269-DN-EYvJW0gGbkZBOHQqI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
