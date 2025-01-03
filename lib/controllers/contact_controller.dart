@@ -53,22 +53,36 @@ class ContactController extends GetxController {
     }
   }
 
+
   Future<void> toggleFavorite(Contact contact) async {
-    try {
-      contact.isFavorite = !contact.isFavorite; // Toggle favorite status
-      await firestore.collection('contacts').doc(contact.id).update({
-        'isFavorite': contact.isFavorite,
-      });
-      Get.snackbar(
-        'Success',
-        contact.isFavorite
-            ? '${contact.name} added to favorites!'
-            : '${contact.name} removed from favorites!',
-      );
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to update favorite status: $e');
+  try {
+    // Toggle favorite status
+    final updatedStatus = !contact.isFavorite;
+
+    // Update Firestore
+    await firestore.collection('contacts').doc(contact.id).update({
+      'isFavorite': updatedStatus,
+    });
+
+    // Update local list
+    final index = contacts.indexWhere((c) => c.id == contact.id);
+    if (index != -1) {
+      contacts[index] = contacts[index].copyWith(isFavorite: updatedStatus);
+      updateSearchQuery(searchQuery.value); // Update filteredContacts
     }
+
+    // Notify user
+    Get.snackbar(
+      'Success',
+      updatedStatus
+          ? '${contact.name} added to favorites!'
+          : '${contact.name} removed from favorites!',
+    );
+  } catch (e) {
+    Get.snackbar('Error', 'Failed to update favorite status: $e');
   }
+}
+
 
   Future<void> deleteContact(Contact contact) async {
     final role = authController.userRole.value;

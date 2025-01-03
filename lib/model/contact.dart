@@ -1,3 +1,6 @@
+
+
+
 class Contact {
   String id;
   String name;
@@ -17,7 +20,7 @@ class Contact {
     this.customFields,
   });
 
-  // Update the factory method to accept the document ID and data separately
+  // Factory method to create a Contact from a map
   factory Contact.fromMap(String id, Map<String, dynamic> map) {
     return Contact(
       id: id,
@@ -32,6 +35,7 @@ class Contact {
     );
   }
 
+  // Convert Contact to a map for Firestore storage
   Map<String, dynamic> toMap() {
     return {
       'name': name,
@@ -41,5 +45,26 @@ class Contact {
       'ownerId': ownerId,
       'customFields': customFields,
     };
+  }
+
+  // CopyWith method for creating a modified copy of the Contact
+  Contact copyWith({
+    String? id,
+    String? name,
+    String? phone,
+    String? email,
+    bool? isFavorite,
+    String? ownerId,
+    Map<String, String>? customFields,
+  }) {
+    return Contact(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      phone: phone ?? this.phone,
+      email: email ?? this.email,
+      isFavorite: isFavorite ?? this.isFavorite,
+      ownerId: ownerId ?? this.ownerId,
+      customFields: customFields ?? this.customFields,
+    );
   }
 }
