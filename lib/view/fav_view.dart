@@ -27,7 +27,7 @@ class FavoriteContactsPage extends StatelessWidget {
             title: Text(contact.name),
             subtitle: Text(contact.phone),
             trailing: IconButton(
-              icon: Icon(Icons.star),
+              icon: Icon(Icons.favorite,color: Colors.red,),
               onPressed: () => controller.toggleFavorite(contact),
             ),
             onTap: () {

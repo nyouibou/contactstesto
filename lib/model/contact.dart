@@ -1,6 +1,7 @@
 
 
 
+
 class Contact {
   String id;
   String name;
@@ -9,6 +10,10 @@ class Contact {
   bool isFavorite;
   String ownerId;
   Map<String, String>? customFields;
+  String? whatsapp;
+  String? facebook;
+  String? instagram;
+  String? youtube;
 
   Contact({
     required this.id,
@@ -18,6 +23,10 @@ class Contact {
     this.isFavorite = false,
     required this.ownerId,
     this.customFields,
+    this.whatsapp,
+    this.facebook,
+    this.instagram,
+    this.youtube,
   });
 
   // Factory method to create a Contact from a map
@@ -32,6 +41,10 @@ class Contact {
       customFields: map['customFields'] != null
           ? Map<String, String>.from(map['customFields'])
           : null,
+      whatsapp: map['whatsapp'] as String?,
+      facebook: map['facebook'] as String?,
+      instagram: map['instagram'] as String?,
+      youtube: map['youtube'] as String?,
     );
   }
 
@@ -44,6 +57,10 @@ class Contact {
       'isFavorite': isFavorite,
       'ownerId': ownerId,
       'customFields': customFields,
+      'whatsapp': whatsapp,
+      'facebook': facebook,
+      'instagram': instagram,
+      'youtube': youtube,
     };
   }
 
@@ -56,6 +73,10 @@ class Contact {
     bool? isFavorite,
     String? ownerId,
     Map<String, String>? customFields,
+    String? whatsapp,
+    String? facebook,
+    String? instagram,
+    String? youtube,
   }) {
     return Contact(
       id: id ?? this.id,
@@ -65,6 +86,10 @@ class Contact {
       isFavorite: isFavorite ?? this.isFavorite,
       ownerId: ownerId ?? this.ownerId,
       customFields: customFields ?? this.customFields,
+      whatsapp: whatsapp ?? this.whatsapp,
+      facebook: facebook ?? this.facebook,
+      instagram: instagram ?? this.instagram,
+      youtube: youtube ?? this.youtube,
     );
   }
 }

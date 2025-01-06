@@ -17,41 +17,123 @@ class ContactController extends GetxController {
     fetchContacts(); // Fetch contacts when the controller is initialized
   }
 
-  Future<void> fetchContacts() async {
-    try {
-      final role = authController.userRole.value;
-      QuerySnapshot<Map<String, dynamic>> snapshot;
+  // Future<void> fetchContacts() async {
+  //   try {
+  //     final role = authController.userRole.value;
+  //     QuerySnapshot<Map<String, dynamic>> snapshot;
 
-      if (role == 'admin') {
-        snapshot = await firestore.collection('contacts').get();
-      } else {
-        snapshot = await firestore
-            .collection('contacts')
-            .where('ownerId', isEqualTo: authController.firebaseUser.value!.uid)
-            .get();
-      }
+  //     if (role == 'admin') {
+  //       snapshot = await firestore.collection('contacts').get();
+  //     } else {
+  //       snapshot = await firestore
+  //           .collection('contacts')
+  //           .where('ownerId', isEqualTo: authController.firebaseUser.value!.uid)
+  //           .get();
+  //     }
 
-      contacts.value = snapshot.docs
-          .map((doc) => Contact.fromMap(doc.id, doc.data()))
-          .toList();
+  //     contacts.value = snapshot.docs
+  //         .map((doc) => Contact.fromMap(doc.id, doc.data()))
+  //         .toList();
 
-      filterContacts(); // Call filtering after fetching
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to fetch contacts: $e');
+  //     filterContacts(); // Call filtering after fetching
+  //   } catch (e) {
+  //     Get.snackbar('Error', 'Failed to fetch contacts: $e');
+  //   }
+  // }
+
+//   Future<void> fetchContacts() async {
+//   try {
+//     final role = authController.userRole.value;
+//     QuerySnapshot<Map<String, dynamic>> snapshot;
+
+//     // Admins can see all contacts
+//     if (role == 'admin') {
+//       snapshot = await firestore.collection('contacts').get();
+//     } else {
+//       // Regular users can see their own contacts and admin contacts
+//       snapshot = await firestore
+//           .collection('contacts')
+//           .where('ownerId', whereIn: [authController.firebaseUser.value!.uid, 'admin'])
+//           .get();
+//     }
+
+//     // Mapping Firestore documents to Contact model
+//     contacts.value = snapshot.docs
+//         .map((doc) => Contact.fromMap(doc.id, doc.data()))
+//         .toList();
+
+//     // Filter contacts based on search query
+//     filterContacts();
+//   } catch (e) {
+//     Get.snackbar('Error', 'Failed to fetch contacts: $e');
+//   }
+// }
+
+
+Future<void> fetchContacts() async {
+  try {
+    final role = authController.userRole.value;
+    QuerySnapshot<Map<String, dynamic>> snapshot;
+
+    if (role == 'admin') {
+      // Admins can see all contacts
+      snapshot = await firestore.collection('contacts').get();
+    } else {
+      // Fetch contacts where the owner is the current user or an admin
+      snapshot = await firestore
+          .collection('contacts')
+          .where('ownerId', whereIn: [authController.firebaseUser.value!.uid, 'admin'])
+          .get();
     }
+
+    // Map Firestore documents to the Contact model
+    contacts.value = snapshot.docs
+        .map((doc) => Contact.fromMap(doc.id, doc.data()))
+        .toList();
+
+    // Apply search filter after fetching contacts
+    filterContacts();
+  } catch (e) {
+    Get.snackbar('Error', 'Failed to fetch contacts: $e');
   }
+}
+
+
+
+  // Future<void> addContact(Contact contact) async {
+  //   try {
+  //     final docRef =
+  //         await firestore.collection('contacts').add(contact.toMap());
+  //     contact.id = docRef.id; // Assign the Firestore ID to the contact
+  //     contacts.add(contact); // Add it locally for immediate display
+  //     Get.snackbar('Success', 'Contact added successfully!');
+  //   } catch (e) {
+  //     Get.snackbar('Error', 'Failed to add contact: $e');
+  //   }
+  // }
 
   Future<void> addContact(Contact contact) async {
-    try {
-      final docRef =
-          await firestore.collection('contacts').add(contact.toMap());
-      contact.id = docRef.id; // Assign the Firestore ID to the contact
-      contacts.add(contact); // Add it locally for immediate display
-      Get.snackbar('Success', 'Contact added successfully!');
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to add contact: $e');
-    }
+  try {
+    // Set the ownerId based on user role
+    final ownerId = authController.userRole.value == 'admin'
+        ? 'admin' // Admin can add contacts with 'admin' as ownerId
+        : authController.firebaseUser.value!.uid; // Regular users add contacts with their own UID
+
+    // Update the contact's ownerId
+    final updatedContact = contact.copyWith(ownerId: ownerId);
+
+    // Add the contact to Firestore
+    final docRef = await firestore.collection('contacts').add(updatedContact.toMap());
+    updatedContact.id = docRef.id; // Assign the Firestore ID to the contact
+
+    // Add it locally for immediate display
+    contacts.add(updatedContact);
+    Get.snackbar('Success', 'Contact added successfully!');
+  } catch (e) {
+    Get.snackbar('Error', 'Failed to add contact: $e');
   }
+}
+
 
 
   Future<void> toggleFavorite(Contact contact) async {
@@ -84,15 +166,38 @@ class ContactController extends GetxController {
 }
 
 
-  Future<void> deleteContact(Contact contact) async {
-    final role = authController.userRole.value;
+  // Future<void> deleteContact(Contact contact) async {
+  //   final role = authController.userRole.value;
+  //   if (role == 'admin') {
+  //     await firestore.collection('contacts').doc(contact.id).delete();
+  //     await fetchContacts(); // Re-fetch contacts after delete
+  //   } else {
+  //     Get.snackbar('Permission Denied', 'Only admins can delete contacts.');
+  //   }
+  // }
+
+Future<void> deleteContact(Contact contact) async {
+  final role = authController.userRole.value;
+  
+  try {
     if (role == 'admin') {
+      // Admins can delete any contact
       await firestore.collection('contacts').doc(contact.id).delete();
       await fetchContacts(); // Re-fetch contacts after delete
+      Get.snackbar('Success', 'Contact deleted successfully!');
+    } else if (role == 'user' && contact.ownerId == authController.firebaseUser.value!.uid) {
+      // Regular users can only delete their own contacts
+      await firestore.collection('contacts').doc(contact.id).delete();
+      await fetchContacts(); // Re-fetch contacts after delete
+      Get.snackbar('Success', 'Contact deleted successfully!');
     } else {
-      Get.snackbar('Permission Denied', 'Only admins can delete contacts.');
+      Get.snackbar('Permission Denied', 'You can only delete your own contacts.');
     }
+  } catch (e) {
+    Get.snackbar('Error', 'Failed to delete contact: $e');
   }
+}
+
 
   void filterContacts() {
     if (searchQuery.value.isEmpty) {
@@ -117,13 +222,17 @@ class ContactController extends GetxController {
     required String name,
     required String phone,
     required String email,
-    Map<String, String>? customFields,
+    Map<String, String>? customFields,required String? whatsapp,required String? facebook,required String? instagram,required String? youtube,
   }) async {
     try {
       // Update the contact's fields locally
       contact.name = name;
       contact.phone = phone;
       contact.email = email;
+      contact.facebook=facebook;
+      contact.whatsapp=whatsapp;
+      contact.instagram=instagram;
+      contact.youtube=youtube;
 
       // Update custom fields if provided
       if (customFields != null) {
@@ -135,6 +244,10 @@ class ContactController extends GetxController {
         'name': contact.name,
         'phone': contact.phone,
         'email': contact.email,
+        'facebook': contact.facebook,
+        'youtube': contact.youtube,
+        'whatsapp': contact.whatsapp,
+        'instagram': contact.instagram,
         'isFavorite': contact.isFavorite,
         'ownerId': contact.ownerId,
       };
